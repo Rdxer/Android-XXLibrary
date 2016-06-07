@@ -6,5 +6,5 @@ package com.firstcare.dylibrary.utils;
 
 public class DBUtils {
 
-    
+
 }
