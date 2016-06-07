@@ -133,7 +133,6 @@ public abstract class BaseModelProxy<T extends BaseModel> {
         setModel(model);
     }
 
-
     /**
      * @return 当前类 代理的模型类
      */

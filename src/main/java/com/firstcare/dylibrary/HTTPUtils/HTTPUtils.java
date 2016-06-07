@@ -53,8 +53,8 @@ public class HTTPUtils {
     }
 
     public <T> void addToRequestQueue(final Request<T> req) {
-        if (req instanceof DYSSRequest){
-            ((DYSSRequest) req).setContext(this.context);
+        if (req instanceof JSONObjectRequest){
+            ((JSONObjectRequest) req).setContext(this.context);
             requestQueue.cancelAll(new RequestQueue.RequestFilter() {
                 @Override
                 public boolean apply(Request<?> request) {
