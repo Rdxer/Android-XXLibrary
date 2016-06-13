@@ -102,7 +102,7 @@ public abstract class JSONRequest<T> extends Request<T> {
 
     public long getTimestamp() {
         if (timestamp == 0){
-            timestamp = 1465374157993L;//System.currentTimeMillis();
+            timestamp = System.currentTimeMillis();
         }
         return timestamp;
     }

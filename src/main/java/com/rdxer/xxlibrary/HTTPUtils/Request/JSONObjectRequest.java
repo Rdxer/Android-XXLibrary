@@ -99,6 +99,7 @@ public abstract class JSONObjectRequest<T> extends JSONRequest<JSONObject> {
                 target = parseResponse(response);
                 this.setFailed(false);
             } catch (Exception e) {
+                Log.wtf(e);
                 e.printStackTrace();
                 this.setFailed(true);
                 try {
@@ -110,6 +111,7 @@ public abstract class JSONObjectRequest<T> extends JSONRequest<JSONObject> {
                         parseProcessingError(processingError);
                     }
                 } catch (Exception e1) {
+                    Log.wtf(e1);
                     e1.printStackTrace();
                     this.setProcessingError(new ProcessingProcessingError(response,this.getProcessingError()));
                     this.getProcessingError().setMessage("服务器数据异常..");

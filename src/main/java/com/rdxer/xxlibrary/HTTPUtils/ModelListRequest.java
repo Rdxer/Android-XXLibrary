@@ -6,8 +6,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.rdxer.xxlibrary.HTTPUtils.listener.ErrorListener;
 import com.rdxer.xxlibrary.HTTPUtils.listener.FailedListener;
 import com.rdxer.xxlibrary.HTTPUtils.listener.OKListener;
+import com.rdxer.xxlibrary.bean.BaseModel;
+import com.rdxer.xxlibrary.proxy.BaseModelProxy;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +27,24 @@ public class ModelListRequest<T> extends XXRequest<List<T>> {
     @Override
     protected List<T> parseResponseToTarget(JSONObject response) throws Exception {
         JSONArray res = (JSONArray) getTargetData(response);
-        return (List<T>)res.toJavaObject(getTClass());
+        List<T> list = new ArrayList<T>(res.size());
+        boolean isProxyClass = BaseModelProxy.class.isAssignableFrom(getTClass());
+
+        for (int i = 0 ; i < res.size() ; i++){
+            JSONObject r = res.getJSONObject(i);
+            T t;
+            if (isProxyClass){
+                t = getTClass().newInstance();
+                BaseModelProxy modelProxy = (BaseModelProxy) t;
+                BaseModel model = (BaseModel) r.toJavaObject(modelProxy.getModelClass());
+                modelProxy.setModel(model);
+            }
+            else{
+                t = r.toJavaObject(getTClass());
+            }
+            list.add(t);
+        }
+        return list;
     }
 
     public Class<T> getTClass() {

@@ -46,8 +46,14 @@ public class XXRequest<T> extends JSONObjectRequest<T> {
         super(url, requestBody, okListener, failedListener, errorListener);
     }
 
-    protected Object getTargetData(JSONObject response) throws Exception {
-        return response.get(this.getKey_data());
+    /**
+     * 获取 response 中需要解析的jsonObject 或者 jsonArray
+     * @param response 响应
+     * @return 目标对象
+     * @throws Exception
+     */
+    protected <T> T getTargetData(JSONObject response) throws Exception {
+        return (T) response.get(this.getKey_data());
     }
 
     @Override
