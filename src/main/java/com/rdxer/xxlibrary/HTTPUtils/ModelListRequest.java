@@ -27,6 +27,7 @@ public class ModelListRequest<T> extends XXRequest<List<T>> {
     @Override
     protected List<T> parseResponseToTarget(JSONObject response) throws Exception {
         JSONArray res = (JSONArray) getTargetData(response);
+
         List<T> list = new ArrayList<T>(res.size());
         boolean isProxyClass = BaseModelProxy.class.isAssignableFrom(getTClass());
 

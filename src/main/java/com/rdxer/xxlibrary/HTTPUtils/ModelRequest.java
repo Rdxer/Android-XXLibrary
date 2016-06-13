@@ -5,6 +5,7 @@ import com.rdxer.xxlibrary.HTTPUtils.listener.ErrorListener;
 import com.rdxer.xxlibrary.HTTPUtils.listener.FailedListener;
 import com.rdxer.xxlibrary.HTTPUtils.listener.OKListener;
 import com.rdxer.xxlibrary.bean.BaseModel;
+import com.rdxer.xxlibrary.proxy.BaseModelProxy;
 
 import java.lang.reflect.ParameterizedType;
 
@@ -12,7 +13,7 @@ import java.lang.reflect.ParameterizedType;
  * Created by LXF on 16/6/3.
  */
 
-public class ModelRequest<T extends BaseModel> extends XXRequest<T> {
+public class ModelRequest<T> extends XXRequest<T> {
 
 
     public ModelRequest(URLInfo url, JSONObject requestBody, OKListener<T> okListener, FailedListener failedListener, ErrorListener errorListener) {
@@ -22,7 +23,18 @@ public class ModelRequest<T extends BaseModel> extends XXRequest<T> {
     @Override
     protected T parseResponseToTarget(JSONObject response) throws Exception {
         JSONObject jsonObject = (JSONObject) getTargetData(response);
-        return jsonObject.toJavaObject(getTClass());
+
+        T t = null;
+        if (BaseModelProxy.class.isAssignableFrom(getTClass())) {
+            t = getTClass().newInstance();
+            BaseModelProxy modelProxy = (BaseModelProxy) t;
+            BaseModel model = (BaseModel) jsonObject.toJavaObject(modelProxy.getModelClass());
+            modelProxy.setModel(model);
+        } else {
+            t = jsonObject.toJavaObject(getTClass());
+        }
+
+        return t;
     }
 
     public Class<T> getTClass() {
