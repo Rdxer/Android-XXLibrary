@@ -53,7 +53,9 @@ public class URLInfo {
         if (baseURL != null && baseURL.length() > 0 && getURL().indexOf("://") == -1) {
             absURL = baseURL.trim() + getURL().trim();
         }
-
+        if (jsonObject == null || jsonObject.size() < 1 || absURL.indexOf("{") == -1){
+            return absURL;
+        }
         // 自动拼接参数
         Set<String> keySet = jsonObject.keySet();
         for (String key : keySet){
@@ -61,9 +63,13 @@ public class URLInfo {
             int index = absURL.indexOf(targetKey);
             if (index != -1){
                 Object o = jsonObject.get(key);
-                absURL.replaceAll(targetKey,o.toString());
-
+                absURL = absURL.replace(targetKey,o.toString());
+                jsonObject.remove(key);
             }
+        }
+
+        if (absURL.indexOf("{") != -1){
+            Log.wtf("generateAbsURL: url还有key 需要被替换");
         }
 
         return absURL;

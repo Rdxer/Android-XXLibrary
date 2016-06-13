@@ -41,4 +41,8 @@ public class ProcessingError extends Exception{
     public String getMessage() {
         return message;
     }
+
+    public String getDetailsMessage() {
+        return super.getMessage();
+    }
 }

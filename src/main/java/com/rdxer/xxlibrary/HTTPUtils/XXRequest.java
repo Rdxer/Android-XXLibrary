@@ -52,8 +52,8 @@ public class XXRequest<T> extends JSONObjectRequest<T> {
      * @return 目标对象
      * @throws Exception
      */
-    protected <T> T getTargetData(JSONObject response) throws Exception {
-        return (T) response.get(this.getKey_data());
+    protected Object getTargetData(JSONObject response) throws Exception {
+        return response.get(this.getKey_data());
     }
 
     @Override
