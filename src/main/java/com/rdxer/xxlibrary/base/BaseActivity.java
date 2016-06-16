@@ -32,6 +32,11 @@ public abstract class BaseActivity extends Activity implements IBaseController {
     }
 
     @Override
+    public int getContentViewId(Bundle savedInstanceState) {
+        return 0;
+    }
+
+    @Override
     public void loadViews(Bundle savedInstanceState) {
 
     }

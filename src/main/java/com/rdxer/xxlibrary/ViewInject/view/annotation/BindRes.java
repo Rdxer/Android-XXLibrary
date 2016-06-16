@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ResInject {
+public @interface BindRes {
     int id();
 
     ResType type();

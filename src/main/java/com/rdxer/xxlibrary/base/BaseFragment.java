@@ -54,6 +54,11 @@ public abstract class BaseFragment extends Fragment implements IBaseController{
     }
 
     @Override
+    public int getContentViewId(Bundle savedInstanceState) {
+        return 0;
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
     }

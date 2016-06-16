@@ -19,7 +19,6 @@ import android.app.Activity;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
-import android.support.v4.app.Fragment;
 import android.view.View;
 import com.rdxer.xxlibrary.ViewInject.view.EventListenerManager;
 import com.rdxer.xxlibrary.ViewInject.view.ResLoader;
@@ -27,8 +26,8 @@ import com.rdxer.xxlibrary.ViewInject.view.ViewFinder;
 import com.rdxer.xxlibrary.ViewInject.view.ViewInjectInfo;
 import com.rdxer.xxlibrary.ViewInject.view.annotation.ContentView;
 import com.rdxer.xxlibrary.ViewInject.view.annotation.PreferenceInject;
-import com.rdxer.xxlibrary.ViewInject.view.annotation.ResInject;
-import com.rdxer.xxlibrary.ViewInject.view.annotation.ViewInject;
+import com.rdxer.xxlibrary.ViewInject.view.annotation.BindRes;
+import com.rdxer.xxlibrary.ViewInject.view.annotation.BindView;
 import com.rdxer.xxlibrary.ViewInject.view.annotation.event.EventBase;
 import com.rdxer.xxlibrary.utils.Log;
 
@@ -90,10 +89,10 @@ public class ViewUtils {
         Field[] fields = handlerType.getDeclaredFields();
         if (fields != null && fields.length > 0) {
             for (Field field : fields) {
-                ViewInject viewInject = field.getAnnotation(ViewInject.class);
-                if (viewInject != null) {
+                BindView bindView = field.getAnnotation(BindView.class);
+                if (bindView != null) {
                     try {
-                        View view = finder.findViewById(viewInject.value(), viewInject.parentId());
+                        View view = finder.findViewById(bindView.value(), bindView.parentId());
                         if (view != null) {
                             field.setAccessible(true);
                             field.set(handler, view);
@@ -102,11 +101,11 @@ public class ViewUtils {
                         Log.e(e.getMessage(), e);
                     }
                 } else {
-                    ResInject resInject = field.getAnnotation(ResInject.class);
-                    if (resInject != null) {
+                    BindRes bindRes = field.getAnnotation(BindRes.class);
+                    if (bindRes != null) {
                         try {
                             Object res = ResLoader.loadRes(
-                                    resInject.type(), finder.getContext(), resInject.id());
+                                    bindRes.type(), finder.getContext(), bindRes.id());
                             if (res != null) {
                                 field.setAccessible(true);
                                 field.set(handler, res);
