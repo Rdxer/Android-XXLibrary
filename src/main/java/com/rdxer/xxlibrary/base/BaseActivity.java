@@ -17,8 +17,8 @@ public abstract class BaseActivity extends Activity implements IBaseController {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        int  contentViewId = getContentViewId(savedInstanceState);
-        if (contentViewId != 0){
+        int contentViewId = getContentViewId(savedInstanceState);
+        if (contentViewId != 0) {
             setContentView(contentViewId);
         }
         viewInject(null);
@@ -40,4 +40,16 @@ public abstract class BaseActivity extends Activity implements IBaseController {
     public void loadViews(Bundle savedInstanceState) {
 
     }
+
+    /**
+     * 在子线程运行,
+     * Activity.runOnUiThread()
+     *
+     * @param action
+     */
+    public void runOnChildThread(Runnable action) {
+        Thread thread = new Thread(action);
+        thread.start();
+    }
+
 }
