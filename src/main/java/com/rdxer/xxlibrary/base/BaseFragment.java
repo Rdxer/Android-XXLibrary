@@ -8,50 +8,54 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.rdxer.xxlibrary.ViewInject.ViewUtils;
+import com.rdxer.xxlibrary.ViewInject.view.annotation.ContentView;
+
 /**
  * Created by LXF on 16/6/13.
  */
 
 public abstract class BaseFragment extends Fragment implements IBaseController{
 
-    private Context context;
-
-    public View getRootView() {
-        return rootView;
-    }
-
-    public void setRootView(View rootView) {
-        this.rootView = rootView;
-    }
-
     @Override
     public Context getContext() {
-        return context;
+        return getActivity();
     }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
-    private View rootView;
-
-//    private Unbinder unbinder;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        rootView = inflater.inflate(getContentViewId(savedInstanceState), container, false);
-        this.context = getActivity();
-//        ButterKnife.bind(this, rootView);//绑定framgent
+        int contentViewId = getContentViewId(savedInstanceState);
+        if (contentViewId == 0){
+            Class<?> handlerType = this.getClass();
+            ContentView contentView = handlerType.getAnnotation(ContentView.class);
+            contentViewId = contentView.value();
+        }
+        View rootView = inflater.inflate(contentViewId , container, false);
+        return rootView;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        viewInject(view);
         loadViews(savedInstanceState);
         viewDidLoad(savedInstanceState);
-        return rootView;
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void viewInject(View view) {
+        ViewUtils.inject(this,view);
+    }
+
+    @Override
+    public void loadViews(Bundle savedInstanceState) {
+
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-//        unbinder.unbind();
     }
 
 }

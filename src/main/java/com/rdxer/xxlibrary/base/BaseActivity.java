@@ -2,6 +2,9 @@ package com.rdxer.xxlibrary.base;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
+
+import com.rdxer.xxlibrary.ViewInject.ViewUtils;
 
 
 /**
@@ -10,20 +13,26 @@ import android.os.Bundle;
 
 public abstract class BaseActivity extends Activity implements IBaseController {
 
-//    private Unbinder unbinder;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(getContentViewId(savedInstanceState));
-//        unbinder = ButterKnife.bind(this);
+
+        int  contentViewId = getContentViewId(savedInstanceState);
+        if (contentViewId != 0){
+            setContentView(contentViewId);
+        }
+        viewInject(null);
         loadViews(savedInstanceState);
         viewDidLoad(savedInstanceState);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-//        unbinder.unbind();
+    public void viewInject(View view) {
+        ViewUtils.inject(this);
+    }
+
+    @Override
+    public void loadViews(Bundle savedInstanceState) {
+
     }
 }
