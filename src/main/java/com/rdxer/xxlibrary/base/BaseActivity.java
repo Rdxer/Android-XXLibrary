@@ -12,6 +12,17 @@ import android.view.View;
 
 public abstract class BaseActivity extends Activity {
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // add
+    }
+
+    @Override
+    protected void onDestroy() {
+        // del
+        super.onDestroy();
+    }
 
     /**
      * 在子线程运行,
@@ -23,5 +34,7 @@ public abstract class BaseActivity extends Activity {
         Thread thread = new Thread(action);
         thread.start();
     }
+
+
 
 }
