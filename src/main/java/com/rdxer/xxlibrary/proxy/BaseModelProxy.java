@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.litesuits.orm.LiteOrm;
+import com.rdxer.xxlibrary.base.BaseApplication;
 import com.rdxer.xxlibrary.bean.BaseModel;
 import com.rdxer.xxlibrary.utils.Log;
 
@@ -26,6 +28,30 @@ public abstract class BaseModelProxy<T extends BaseModel> {
     public void setModel(T model) {
         this.model = model;
     }
+    /**
+     * 初始化
+     *
+     * @param modelJSONString 模型字符串
+     */
+    public void setModelJSON(String modelJSONString) {
+        T model = JSON.parseObject(modelJSONString, getModelClass());
+        setModel(model);
+    }
+
+    /**
+     * @return 当前类 代理的模型类
+     */
+    @JSONField(serialize = false)
+    public Class<T> getModelClass() {
+        return (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    }
+
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this, true);
+    }
+
 
     //////////////////////
     //      构造
@@ -50,8 +76,10 @@ public abstract class BaseModelProxy<T extends BaseModel> {
     public BaseModelProxy(JSONObject object) {
         this.setModel(object.toJavaObject(getModelClass()));
     }
+
     /**
      * 构造模型代理实例
+     *
      * @param modelJSONString 模型的json字符穿
      */
     public BaseModelProxy(String modelJSONString) {
@@ -59,43 +87,55 @@ public abstract class BaseModelProxy<T extends BaseModel> {
         setModelJSON(modelJSONString);
     }
 
+
+    ///************************************************
+    ///                生成 模型代理数组
+    ///************************************************
+
     /**
-     *
-     * @param text
-     * @param clazz
-     * @param <T>
-     * @return
+     * 生成模型代理数组
+     * @param text 模型数据的json字符串
+     * @param modelProxyClazz 模型代理的类
+     * @param <T> 约束的泛型
+     * @return 模型代理数组
      */
-    public static <T extends BaseModelProxy> List<T> mpListWithJSON(String text, Class<T> clazz) {
+    public static <T extends BaseModelProxy> List<T> generateModelProxyList(String text, Class<T> modelProxyClazz) {
         T t = null;
         try {
-            t = clazz.newInstance();
+            t = modelProxyClazz.newInstance();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
         if (t == null) {
-            Log.e("解析失败...此类型不正常...:" + clazz);
+            Log.e("解析失败...此类型不正常...:" + modelProxyClazz);
             return new ArrayList<T>();
         }
 
         List modelList = JSON.parseArray(text, t.getModelClass());
 
-        return mpListWithModelList(modelList,clazz);
+        return generateModelProxyList(modelList, modelProxyClazz);
     }
 
-    public static <T extends BaseModelProxy> List<T> mpListWithJSONArray(JSONArray jsonArray, Class<T> clazz) {
+    /**
+     * 生成模型代理数组
+     * @param jsonArray jsonArray
+     * @param modelProxyClazz modelProxy class
+     * @param <T> 约束泛型
+     * @return 模型数组
+     */
+    public static <T extends BaseModelProxy> List<T> generateModelProxyList(JSONArray jsonArray, Class<T> modelProxyClazz) {
         T t = null;
         try {
-            t = clazz.newInstance();
+            t = modelProxyClazz.newInstance();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
         if (t == null) {
-            Log.e("解析失败...此类型不正常...:" + clazz);
+            Log.e("解析失败...此类型不正常...:" + modelProxyClazz);
             return new ArrayList<T>();
         }
         List modelList = new ArrayList();
@@ -103,15 +143,21 @@ public abstract class BaseModelProxy<T extends BaseModel> {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             modelList.add(jsonObject.toJavaObject(t.getModelClass()));
         }
-        return mpListWithModelList(modelList,clazz);
+        return generateModelProxyList(modelList, modelProxyClazz);
     }
 
-    public static <TM extends BaseModelProxy<T2>, T2 extends BaseModel> List<TM> mpListWithModelList(List<T2> modelList, Class<TM> clazz) {
+    /**
+     * 生成模型代理数组
+     * @param modelList 模型数组
+     * @param modelProxyClazz 模型代理类型
+     * @return 模型代理结果
+     */
+    public static <TM extends BaseModelProxy<T2>, T2 extends BaseModel> List<TM> generateModelProxyList(List<T2> modelList, Class<TM> modelProxyClazz) {
         List<TM> mpList = new ArrayList<TM>();
         try {
             for (T2 model : modelList) {
                 TM t = null;
-                t = clazz.newInstance();
+                t = modelProxyClazz.newInstance();
                 t.setModel(model);
                 mpList.add(t);
             }
@@ -123,27 +169,89 @@ public abstract class BaseModelProxy<T extends BaseModel> {
         return mpList;
     }
 
+    ///************************************************
+    ///                生成 模型数组
+    ///************************************************
+
     /**
-     * 初始化
+     * 模型代理List转成模型列表
      *
-     * @param modelJSONString 模型字符串
+     * @param mpList 模型代理list
+     * @return modelList模型了list
      */
-    public void setModelJSON(String modelJSONString) {
-        T model = JSON.parseObject(modelJSONString, getModelClass());
-        setModel(model);
+    public static <ModelT extends BaseModel, ModelProxyT extends BaseModelProxy<ModelT>> List<ModelT> generateModelList(List<ModelProxyT> mpList) {
+        List<ModelT> modelTList = new ArrayList();
+        if (mpList == null) {
+            return modelTList;
+        }
+
+        for (ModelProxyT mp : mpList) {
+            modelTList.add(mp.getModel());
+        }
+
+        return modelTList;
+    }
+
+    ///************************************************
+    ///                     数据库
+    ///************************************************
+
+    public static LiteOrm getDB(){
+        return BaseApplication.getShared().getDb();
     }
 
     /**
-     * @return 当前类 代理的模型类
+     * 保存到数据库
      */
-    @JSONField(serialize = false)
-    public Class<T> getModelClass() {
-        return (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    public long saveToDB(){
+        return getDB().save(getModel());
+    }
+
+    /**
+     * 保存到数据库
+     * @param list 模型代理列表
+     * @return
+     */
+    public static <T extends BaseModelProxy> long saveToDB(List<T> list){
+        List<BaseModel> modelList = generateModelList(list);
+        return getDB().save(modelList);
+    }
+
+    /**
+     * 从数据库删除
+     */
+    public long deleteToDB(){
+        return getDB().delete(getModel());
+    }
+
+    /**
+     * 从数据库删除
+     * @param list 模型代理列表
+     * @return
+     */
+    public static <T extends BaseModelProxy> long deleteFromDB(List<T> list){
+        List<BaseModel> modelList = generateModelList(list);
+        return getDB().delete(modelList);
+    }
+
+    /**
+     * 从数据库删除此表
+     * @return
+     */
+    public static <T extends BaseModel> long deleteFromDB(Class<T> clazz){
+        return getDB().delete(clazz);
+    }
+
+    /**
+     * 从数据库读取数据
+     * @return
+     */
+    public static  <ModelT extends BaseModel, ModelProxyT extends BaseModelProxy<ModelT>> List<ModelProxyT> getDataFromDB(Class<ModelT> modelClass,Class<ModelProxyT> modelProxyTClass){
+        List<ModelT> modelTList = getDB().query(modelClass);
+        List<ModelProxyT> modelProxyTList = generateModelProxyList(modelTList,modelProxyTClass);
+        return modelProxyTList;
     }
 
 
-    @Override
-    public String toString() {
-        return JSON.toJSONString(this,true);
-    }
+
 }
