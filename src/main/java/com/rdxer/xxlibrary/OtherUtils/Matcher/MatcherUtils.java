@@ -51,6 +51,9 @@ public class MatcherUtils {
      */
     public static final String reg_PhoneNumber = "^\\d{11}$";
 
+    /**
+     * 6 到 15 位
+     */
     public static final String reg_password = "^\\w{6,15}$";
 
     /**
@@ -95,7 +98,6 @@ public class MatcherUtils {
         matcher(new String[]{reg_Email,reg_PhoneNumber},values);
     }
 
-
     /**
      * 匹配合法的密码
      * @param values
@@ -104,8 +106,6 @@ public class MatcherUtils {
     public void matcherPassword(Object... values) throws MatcherError {
         matcher(new String[]{reg_password},values);
     }
-
-
 
     /**
      * 匹配金额
