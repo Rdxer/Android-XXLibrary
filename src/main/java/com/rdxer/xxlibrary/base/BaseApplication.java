@@ -80,6 +80,9 @@ public class BaseApplication extends Application {
      * @return 获取删除的缓存
      */
     public synchronized <T>  T removeParamsFromJumpCache(String key){
+        if (key == null) {
+            return null;
+        }
         T t = (T) getJumpCache().remove(key);
         return t;
     }
